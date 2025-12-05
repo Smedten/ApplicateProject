@@ -208,6 +208,7 @@
                             <option value="AuditLogReport">Audit Log (System)</option>
                         </select>
                         <button onclick="loadResource()">Hent</button>
+                        <button onclick="downloadCsv()" style="background-color: #6c757d;">📥 CSV</button>
                     </div>
                 </div>
                 <div id="tableContainer" style="max-height: 300px; overflow-y: auto;"></div>
@@ -472,6 +473,34 @@
                 }
                 container.innerHTML = html;
             } catch (e) { container.innerHTML = e.message; }
+        }
+
+        async function downloadCsv() {
+            const resourceName = document.getElementById('resourceSelector').value;
+
+            try {
+                // Vi henter filen som en 'blob' (binær data)
+                const response = await fetch(`${API_URL}/resources/${resourceName}/export`, {
+                    method: 'POST',
+                    headers: getHeaders()
+                });
+
+                if (response.ok) {
+                    // Magien for at downloade en fil fra JavaScript:
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    // Sæt filnavn (f.eks. ActiveBookings.csv)
+                    a.download = `${resourceName}.csv`;
+                    document.body.appendChild(a);
+                    a.click(); // Simuler klik
+                    a.remove(); // Ryd op
+                } else {
+                    const txt = await response.text();
+                    alert("Fejl: " + txt);
+                }
+            } catch (err) { alert("Netværk: " + err.message); }
         }
 
         // Start

@@ -103,4 +103,35 @@ public class ResourcesController : ControllerBase
             return BadRequest(ex.Message);
         }
     }
+
+    // POST api/resources/{resourceName}/export
+    // Vi bruger POST fordi vi (teoretisk) kunne sende filtre med, ligesom i /run
+    [HttpPost("{resourceName}/export")]
+    public async Task<IActionResult> ExportQuery(
+        string resourceName,
+        [FromServices] ExportService exportService)
+    {
+        var resource = _resourceService.GetResource(resourceName);
+        if (resource == null) return NotFound("Resource not found");
+
+        if (resource.Kind != ResourceKind.Query && resource.Kind != ResourceKind.Report)
+            return BadRequest("Only Queries/Reports can be exported.");
+
+        try
+        {
+            // 1. Hent data (Genbrug QueryExecutor!)
+            var data = await _queryExecutor.ExecuteQueryAsync(resourceName);
+
+            // 2. Konverter til CSV
+            var csvBytes = exportService.ConvertToCsv(data);
+
+            // 3. Returner som fil
+            var fileName = $"{resourceName}_{DateTime.Now:yyyyMMdd}.csv";
+            return File(csvBytes, "text/csv", fileName);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
+    }
 }
