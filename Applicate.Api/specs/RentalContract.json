@@ -1,0 +1,33 @@
+﻿{
+  "name": "RentalContract",
+  "kind": "Report",
+  "query": {
+    "source": "Booking",
+    "include": [ "Customer" ],
+    "select": [ "Id", "StartDate", "EndDate", "TotalPrice", "Status", "Customer.Name", "Customer.Email" ],
+    "conditions": [],
+    "orderBy": []
+  },
+  "actions": [
+    {
+      "name": "SignContract",
+      "description": "Markerer kontrakten som underskrevet af kunden",
+      "parameters": [
+        {
+          "name": "id",
+          "dataType": "Guid"
+        }
+      ]
+    },
+    {
+      "name": "Cancel",
+      "description": "Annullerer bookingen",
+      "parameters": [
+        {
+          "name": "id",
+          "dataType": "Guid"
+        }
+      ]
+    }
+  ]
+}

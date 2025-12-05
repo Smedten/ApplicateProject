@@ -1,0 +1,9 @@
+{
+  "name": "CountryId",
+  "type": "lookup",
+  "relation": "Countries"
+},
+{
+  "name": "BonusField",
+  "visibleIf": "IsVip == true"
+}

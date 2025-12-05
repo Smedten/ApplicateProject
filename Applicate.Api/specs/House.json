@@ -1,0 +1,21 @@
+﻿{
+  "name": "House",
+  "kind": "Table",
+  "fields": [
+    {
+      "name": "Id",
+      "dataType": "Guid"
+    },
+    {
+      "name": "Name",
+      "dataType": "string"
+    },
+    {
+      "name": "Address",
+      "dataType": "string"
+    }
+  ],
+  "relations": [],
+  "actions": [],
+  "query": null
+}

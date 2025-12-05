@@ -1,0 +1,27 @@
+﻿{
+  "name": "AllBookings",
+  "kind": "Query",
+  "fields": [],
+  "relations": [],
+  "actions": [],
+  "query": {
+    "source": "Booking",
+    "include": [ "Customer" ],
+    "select": [
+      "Id",
+      "StartDate",
+      "EndDate",
+      "TotalPrice",
+      "Status",
+      "Customer.Name",
+      "Customer.Email"
+    ],
+    "conditions": [],
+    "orderBy": [
+      {
+        "field": "StartDate",
+        "direction": "DESC"
+      }
+    ]
+  }
+} 

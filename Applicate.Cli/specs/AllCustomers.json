@@ -1,0 +1,10 @@
+﻿{
+  "name": "AllCustomers",
+  "kind": "Query",
+  "query": {
+    "source": "Customer",
+    "select": [ "Id", "Name", "Email" ],
+    "conditions": [],
+    "orderBy": []
+  }
+}

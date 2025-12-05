@@ -1,0 +1,481 @@
+﻿<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <title>Applicate Admin</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+            background-color: #f4f7f6;
+            color: #333;
+        }
+
+        /* Layout */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .container {
+            display: flex;
+            gap: 20px;
+        }
+
+        .section {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .left-panel {
+            flex: 1;
+        }
+
+        .right-panel {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        h1 {
+            margin: 0;
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #2c3e50;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        /* Login Box */
+        .login-box {
+            background: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .logged-in {
+            display: none;
+            color: green;
+            font-weight: bold;
+        }
+
+        .logged-out {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Inputs & Buttons */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+            .form-group label {
+                display: block;
+                margin-bottom: 5px;
+                font-weight: 600;
+                font-size: 0.9em;
+                color: #555;
+            }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 10px 16px;
+            cursor: pointer;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            transition: 0.2s;
+        }
+
+            button:hover {
+                background: #0056b3;
+            }
+
+            button.action-btn {
+                margin-right: 10px;
+            }
+
+            button.logout {
+                background: #6c757d;
+            }
+
+        /* Contract & Tables */
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            font-size: 14px;
+        }
+
+        th, td {
+            border-bottom: 1px solid #eee;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            color: #666;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+            cursor: pointer;
+        }
+
+        #contractView {
+            display: none;
+            background: #fff;
+            border: 1px solid #ddd;
+            padding: 30px;
+            border-radius: 8px;
+        }
+
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <h1>🏰 Applicate Platform</h1>
+
+        <div class="login-box">
+            <div id="loggedOut" class="logged-out">
+                <input type="text" id="username" placeholder="Brugernavn" style="width: 120px;">
+                <input type="password" id="password" placeholder="Kode" style="width: 120px;">
+                <button onclick="login()">Log ind</button>
+            </div>
+            <div id="loggedIn" class="logged-in">
+                <span id="userDisplay"></span>
+                <button class="logout" onclick="logout()">Log ud</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="section left-panel">
+            <h2>📝 Opret Ny</h2>
+            <div class="form-group">
+                <label>Resource:</label>
+                <select id="createSelector" onchange="generateForm()">
+                    <option value="Booking">Booking</option>
+                    <option value="Customer">Customer</option>
+                    <option value="House">House</option>
+                </select>
+            </div>
+            <div id="formContainer"></div>
+            <button onclick="submitForm()" style="width:100%; margin-top:10px;">Opret</button>
+            <div id="createResult" style="margin-top:10px; text-align:center;"></div>
+        </div>
+
+        <div class="section right-panel">
+            <div>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h2>📂 Oversigt</h2>
+                    <div>
+                        <select id="resourceSelector" style="width:auto;">
+                            <option value="ActiveBookings">Active Bookings</option>
+                            <option value="AllBookings">All Bookings</option>
+                            <option value="AllCustomers">All Customers</option>
+                            <option value="AllHouses">All Houses</option>
+                            <option value="AuditLogReport">Audit Log (System)</option>
+                        </select>
+                        <button onclick="loadResource()">Hent</button>
+                    </div>
+                </div>
+                <div id="tableContainer" style="max-height: 300px; overflow-y: auto;"></div>
+            </div>
+
+            <div id="contractView">
+                <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
+                    <h2 style="border:none; margin:0;">📄 Lejekontrakt</h2>
+                    <span id="docStatus" class="status-badge" style="background:#eee;">Draft</span>
+                </div>
+                <div id="docContent" style="line-height:1.6; color:#444;"></div>
+                <div id="docActions" style="margin-top:30px; padding-top:20px; border-top:1px solid #eee;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "http://localhost:5112/api"; // Rettet base URL
+        let authToken = localStorage.getItem("token"); // Hent gemt token
+        let currentUser = localStorage.getItem("user");
+        let currentSpec = null;
+        let loadedData = [];
+
+        // --- AUTHENTICATION ---
+        checkLoginStatus();
+
+        async function login() {
+            const user = document.getElementById('username').value;
+            const pass = document.getElementById('password').value;
+
+            try {
+                const res = await fetch(`${API_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: user, password: pass })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    authToken = data.token;
+                    currentUser = user;
+                    localStorage.setItem("token", authToken);
+                    localStorage.setItem("user", user);
+                    checkLoginStatus();
+                } else {
+                    alert("Login fejlede! Prøv 'admin'/'123' eller 'kunde'/'123'");
+                }
+            } catch (e) { alert("Fejl: " + e.message); }
+        }
+
+        function logout() {
+            authToken = null;
+            currentUser = null;
+            localStorage.clear();
+            checkLoginStatus();
+            location.reload();
+        }
+
+        function checkLoginStatus() {
+            const outDiv = document.getElementById('loggedOut');
+            const inDiv = document.getElementById('loggedIn');
+            if (authToken) {
+                outDiv.style.display = 'none';
+                inDiv.style.display = 'flex';
+                document.getElementById('userDisplay').innerText = `👤 ${currentUser}`;
+            } else {
+                outDiv.style.display = 'flex';
+                inDiv.style.display = 'none';
+            }
+        }
+
+        // Hjælper til Headers (Sætter Token automatisk!)
+        function getHeaders() {
+            const headers = { 'Content-Type': 'application/json' };
+            if (authToken) {
+                headers['Authorization'] = `Bearer ${authToken}`;
+            }
+            return headers;
+        }
+
+        // --- LOGIK (Opdateret med getHeaders()) ---
+
+        async function loadResource() {
+            const resourceName = document.getElementById('resourceSelector').value;
+            const container = document.getElementById('tableContainer');
+            document.getElementById('contractView').style.display = 'none';
+            container.innerHTML = "Indlæser...";
+
+            try {
+                // Hent spec
+                const specRes = await fetch(`${API_URL}/resources/${resourceName}`);
+                const spec = await specRes.json();
+
+                // Hent data (Query kræver måske token i fremtiden, så vi sender den med)
+                const dataRes = await fetch(`${API_URL}/resources/${resourceName}/run`, {
+                    method: 'POST',
+                    headers: getHeaders()
+                });
+
+                loadedData = await dataRes.json();
+
+                if (loadedData.length === 0) {
+                    container.innerHTML = "<p>Ingen data.</p>"; return;
+                }
+
+                let columns = (spec.query && spec.query.select && spec.query.select.length > 0)
+                    ? spec.query.select : Object.keys(loadedData[0]);
+
+                let html = '<table><thead><tr>';
+                columns.forEach(col => html += `<th>${col}</th>`);
+                html += '</tr></thead><tbody>';
+
+                loadedData.forEach(row => {
+                    html += `<tr onclick="openContract('${row.Id}')">`;
+                    columns.forEach(col => {
+                        let val = row[col] !== null && row[col] !== undefined ? row[col] : "";
+                        if (String(val).includes("T00:00:00")) val = val.split("T")[0];
+                        html += `<td>${val}</td>`;
+                    });
+                    html += '</tr>';
+                });
+                html += '</tbody></table>';
+                container.innerHTML = html;
+
+            } catch (err) { container.innerHTML = `<p style="color:red">${err.message}</p>`; }
+        }
+
+        async function submitForm() {
+            if (!currentSpec) return;
+            const payload = { "Id": crypto.randomUUID() };
+
+            // Saml data fra inputs...
+            currentSpec.fields.forEach(field => {
+                if (field.name.toLowerCase() === "id") return;
+                const input = document.getElementById(`input_${field.name}`);
+                if (input) {
+                    let val = input.value;
+                    if (field.dataType === "decimal" || field.dataType === "int") val = Number(val);
+                    payload[field.name] = val;
+                }
+            });
+
+            try {
+                // HER BRUGER VI TOKEN TIL CREATE
+                const response = await fetch(`${API_URL}/resources/${currentSpec.name}/data`, {
+                    method: 'POST',
+                    headers: getHeaders(), // <--- VIGTIGT
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    document.getElementById('createResult').innerHTML = `<p style="color:green; font-weight:bold;">✅ Oprettet!</p>`;
+                    if (document.getElementById('resourceSelector').value.includes(currentSpec.name)) loadResource();
+                } else {
+                    const txt = await response.text();
+                    document.getElementById('createResult').innerHTML = `<p style="color:red">Fejl: ${txt}</p>`;
+                }
+            } catch (err) { alert("Fejl: " + err.message); }
+        }
+
+        async function openContract(id) {
+            const item = loadedData.find(x => x.Id === id);
+            if (!item) return;
+
+            const specRes = await fetch(`${API_URL}/resources/Booking`); // Hent Table spec for actions
+            const spec = await specRes.json();
+
+            document.getElementById('contractView').style.display = 'block';
+
+            // Status Badge Farver
+            const statusEl = document.getElementById('docStatus');
+            statusEl.innerText = item.Status;
+            statusEl.className = `status-badge`; // Reset styles hvis vi brugte CSS classes
+            // (Hardcoded styles for demo)
+            statusEl.style.backgroundColor = item.Status === 'Signed' ? '#d4edda' : '#fff3cd';
+            statusEl.style.color = item.Status === 'Signed' ? '#155724' : '#856404';
+
+            // Indhold
+            document.getElementById('docContent').innerHTML = `
+                    <p><strong>Kunde:</strong> ${item["Customer.Name"] || 'Ukendt'} (${item["Customer.Email"] || '-'})</p>
+                    <p><strong>Periode:</strong> ${item.StartDate.split('T')[0]} til ${item.EndDate.split('T')[0]}</p>
+                    <p><strong>Pris:</strong> DKK ${item.TotalPrice}</p>
+                    <hr><p>Ved underskrift accepteres betingelserne.</p>
+                `;
+
+            // Knapper
+            let actionsHtml = "";
+            if (spec.actions) {
+                spec.actions.forEach(act => {
+                    // Tjek visuelt om knappen skal være der (simpelt check)
+                    actionsHtml += `<button style="margin-right:10px;" onclick="runAction('${spec.name}', '${act.name}', '${item.Id}')">${act.name}</button>`;
+                });
+            }
+            document.getElementById('docActions').innerHTML = actionsHtml;
+        }
+
+        async function runAction(resource, action, id) {
+            try {
+                // HER BRUGER VI TOKEN TIL ACTIONS
+                const response = await fetch(`${API_URL}/resources/${resource}/action/${action}?id=${id}`, {
+                    method: 'POST',
+                    headers: getHeaders() // <--- VIGTIGT: Sender "Bearer eyJ..."
+                });
+
+                if (response.ok) {
+                    alert("✅ Succes!");
+                    loadResource();
+                } else {
+                    // Her fanger vi 401/403 fejlene!
+                    if (response.status === 401) alert("⛔ Du er ikke logget ind!");
+                    else if (response.status === 403) alert("⛔ Du har ikke rettigheder til dette (Forkert rolle)!");
+                    else {
+                        const txt = await response.text();
+                        alert("Fejl: " + txt);
+                    }
+                }
+            } catch (err) { alert("Netværk: " + err.message); }
+        }
+
+        async function generateForm() {
+            // (Din eksisterende generateForm logik, bare sørg for den bruger den nye fetch med getHeaders() hvis nødvendigt til lookups)
+            // ... indsæt generateForm koden her, men brug getHeaders() i fetch kaldet til lookups ...
+            const resourceName = document.getElementById('createSelector').value;
+            const container = document.getElementById('formContainer');
+            container.innerHTML = "Henter...";
+
+            try {
+                const res = await fetch(`${API_URL}/resources/${resourceName}`);
+                currentSpec = await res.json();
+                let html = "";
+
+                for (const field of currentSpec.fields) {
+                    if (field.name.toLowerCase() === "id") continue;
+
+                    let inputHtml = "";
+                    // --- LOOKUP ---
+                    if (field.lookup) {
+                        const lRes = await fetch(`${API_URL}/resources/${field.lookup}/run`, {
+                            method: 'POST',
+                            headers: getHeaders()
+                        });
+                        const opts = await lRes.json();
+                        inputHtml = `<select id="input_${field.name}"><option value="">-- Vælg --</option>`;
+                        opts.forEach(o => inputHtml += `<option value="${o.Id}">${o.Name || o.Title || o.Id}</option>`);
+                        inputHtml += `</select>`;
+                    }
+                    // --- OPTIONS ---
+                    else if (field.options) {
+                        inputHtml = `<select id="input_${field.name}">`;
+                        field.options.forEach(o => inputHtml += `<option value="${o}">${o}</option>`);
+                        inputHtml += `</select>`;
+                    }
+                    // --- NORMAL ---
+                    else {
+                        let type = "text";
+                        if (field.dataType === "date") type = "date";
+                        if (field.dataType === "decimal") type = "number";
+                        inputHtml = `<input type="${type}" id="input_${field.name}">`;
+                    }
+
+                    html += `<div class="form-group"><label>${field.name}</label>${inputHtml}</div>`;
+                }
+                container.innerHTML = html;
+            } catch (e) { container.innerHTML = e.message; }
+        }
+
+        // Start
+        generateForm();
+    </script>
+</body>
+</html>

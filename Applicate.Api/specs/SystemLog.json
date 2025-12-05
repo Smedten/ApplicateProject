@@ -1,0 +1,33 @@
+﻿{
+  "name": "SystemLog",
+  "kind": "Table",
+  "fields": [
+    {
+      "name": "Id",
+      "dataType": "Guid"
+    },
+    {
+      "name": "ResourceName",
+      "dataType": "string"
+    },
+    {
+      "name": "ActionName",
+      "dataType": "string"
+    },
+    {
+      "name": "Username",
+      "dataType": "string"
+    },
+    {
+      "name": "Details",
+      "dataType": "string"
+    },
+    {
+      "name": "Timestamp",
+      "dataType": "date"
+    }
+  ],
+  "relations": [],
+  "actions": [],
+  "query": null
+}

@@ -1,0 +1,15 @@
+{
+  "name": "AuditLogReport",
+  "kind": "Query",
+  "query": {
+    "source": "SystemLog",
+    "select": [ "Timestamp", "Username", "ResourceName", "ActionName", "Details" ],
+    "conditions": [],
+    "orderBy": [
+      {
+        "field": "Timestamp",
+        "direction": "DESC"
+      }
+    ]
+  }
+}

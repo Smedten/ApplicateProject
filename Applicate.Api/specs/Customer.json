@@ -1,0 +1,21 @@
+﻿{
+  "name": "Customer",
+  "kind": "Table",
+  "fields": [
+    {
+      "name": "Id",
+      "dataType": "Guid"
+    },
+    {
+      "name": "Name",
+      "dataType": "string"
+    },
+    {
+      "name": "Email",
+      "dataType": "string"
+    }
+  ],
+  "relations": [],
+  "actions": [],
+  "query": null
+}

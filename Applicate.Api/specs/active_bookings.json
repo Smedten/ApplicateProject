@@ -1,0 +1,25 @@
+﻿{
+  "name": "ActiveBookings",
+  "kind": "Query",
+  "fields": [],
+  "relations": [],
+  "actions": [],
+  "query": {
+    "source": "Booking",
+    "include": [ "Customer" ],
+    "select": [ "Id", "Status", "TotalPrice", "Customer.Name", "Customer.Email" ],
+    "conditions": [
+      {
+        "field": "Status",
+        "op": "==",
+        "value": "Confirmed"
+      }
+    ],
+    "orderBy": [
+      {
+        "field": "StartDate",
+        "direction": "ASC"
+      }
+    ]
+  }
+}

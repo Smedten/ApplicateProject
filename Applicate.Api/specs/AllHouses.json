@@ -1,0 +1,10 @@
+﻿{
+  "name": "AllHouses",
+  "kind": "Query",
+  "query": {
+    "source": "House",
+    "select": [ "Id", "Name", "Address" ],
+    "conditions": [],
+    "orderBy": []
+  }
+}

@@ -1,0 +1,120 @@
+{
+  "name": "Booking",
+  "kind": "Table",
+  "fields": [
+    {
+      "name": "Id",
+      "dataType": "Guid"
+    },
+    {
+      "name": "CustomerId",
+      "dataType": "Guid",
+      "lookup": "AllCustomers"
+    },
+    {
+      "name": "HouseId",
+      "dataType": "Guid",
+      "lookup": "AllHouses",
+      "validation": { "required": true }
+    },
+    {
+      "name": "StartDate",
+      "dataType": "date"
+    },
+    {
+      "name": "EndDate",
+      "dataType": "date"
+    },
+    {
+      "name": "TotalPrice",
+      "dataType": "decimal",
+      "validation": {
+        "min": 0,
+        "required": true
+      }
+    },
+    {
+      "name": "Status",
+      "dataType": "string",
+      "options": [ "Pending", "Confirmed", "Signed", "Cancelled" ]
+    }
+  ],
+  "relations": [
+    {
+      "name": "House",
+      "targetResource": "House",
+      "type": "ManyToOne",
+      "fieldMapping": { "HouseId": "Id" }
+    },
+    {
+      "name": "Customer",
+      "targetResource": "Customer",
+      "type": "ManyToOne",
+      "fieldMapping": { "CustomerId": "Id" }
+    }
+  ],
+  "actions": [
+    {
+      "name": "Confirm",
+      "description": "Marks the booking as confirmed",
+      "parameters": [],
+      "steps": [
+        {
+          "type": "UpdateField",
+          "args": {
+            "field": "Status",
+            "value": "Confirmed"
+          }
+        }
+      ]
+    },
+    {
+      "name": "SignContract",
+      "roles": [ "Customer" ],
+      "description": "Signs the contract",
+      "parameters": [
+        {
+          "name": "id",
+          "dataType": "Guid"
+        }
+      ],
+      "steps": [
+        {
+          "type": "Validate",
+          "args": {
+            "field": "Status",
+            "op": "==",
+            "value": "Confirmed",
+            "error": "Kun bekræftede bookinger kan underskrives."
+          }
+        },
+        {
+          "type": "UpdateField",
+          "args": {
+            "field": "Status",
+            "value": "Signed"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cancel",
+      "description": "Cancels booking",
+      "parameters": [
+        {
+          "name": "id",
+          "dataType": "Guid"
+        }
+      ],
+      "steps": [
+        {
+          "type": "UpdateField",
+          "args": {
+            "field": "Status",
+            "value": "Cancelled"
+          }
+        }
+      ]
+    }
+  ]
+}
