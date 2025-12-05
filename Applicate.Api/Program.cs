@@ -13,6 +13,7 @@ builder.Services.AddScoped<ActionService>();
 builder.Services.AddScoped<QueryExecutor>();
 builder.Services.AddDbContext<AppDbContext>();
 builder.Services.AddScoped<DataService>();
+builder.Services.AddScoped<ExportService>();
 
 // Tilføj controllere
 builder.Services.AddControllers();
